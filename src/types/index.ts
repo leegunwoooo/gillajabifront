@@ -18,6 +18,7 @@ export interface JobRecommendResponse {
 
 export interface AptitudeResultResponse {
   categoryScores: Record<string, number>;
+  categoryRates: Record<string, number>;
   recommendedJobs: JobRecommendResponse[];
 }
 

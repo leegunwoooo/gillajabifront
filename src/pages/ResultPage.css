@@ -253,6 +253,13 @@
   margin: 0;
 }
 
+.job-desc {
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.4;
+  text-align: center;
+}
+
 .job-field {
   font-size: 0.75rem;
   color: #64748b;

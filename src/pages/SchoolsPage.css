@@ -70,11 +70,49 @@
   margin: 0;
 }
 
+.selected-job-desc {
+  font-size: 0.78rem;
+  color: #3b82f6;
+  margin: 0.2rem 0 0;
+  opacity: 0.85;
+}
+
 .selected-job-name {
   font-size: 1rem;
   font-weight: 800;
   color: #1e40af;
   margin: 0;
+}
+
+/* Location filter */
+.location-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-btn {
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  color: #475569;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.filter-btn:hover {
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.filter-btn.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
 }
 
 .schools-count {

@@ -9,6 +9,23 @@ interface Props {
   onRetry: () => void;
 }
 
+const JOB_DESC_MAP: Record<string, string> = {
+  SW001: '앱·웹·프로그램을 만드는 소프트웨어 개발자',
+  DA001: '데이터를 분석해 인사이트를 도출하는 데이터 분석가',
+  AI001: 'AI 모델을 개발·활용하는 인공지능 전문가',
+  DE001: '제품·브랜드의 시각적 이미지를 만드는 그래픽 디자이너',
+  DE002: 'UI·UX를 설계해 사용자 경험을 디자인하는 전문가',
+  MK001: '전략을 세워 조직과 사람을 이끄는 경영·마케팅 전문가',
+  RS001: '실험과 탐구로 새로운 것을 발견하는 과학 연구원',
+  CC001: '영상·콘텐츠를 기획·제작하는 미디어 크리에이터',
+  ME001: '기계를 설계·제조·정비하는 기계 엔지니어',
+  EL001: '전기·전자 시스템을 개발·운용하는 전기전자 기술자',
+  CK001: '맛있는 요리를 만드는 조리사·셰프',
+  AG001: '작물과 동물을 재배·사육하는 농업 전문가',
+  AG002: '농산물을 가공·유통하는 식품·농업 전문가',
+  MH001: '사람의 건강을 돌보는 의료·보건 전문가',
+};
+
 const LOCATION_EMOJI: Record<string, string> = {
   서울: '🏙', 부산: '🌊', 대구: '🏞', 인천: '✈', 광주: '🌿',
   대전: '🔬', 울산: '🏭', 경기: '🏘', 강원: '🏔', 충북: '🌾',
@@ -27,6 +44,7 @@ export default function SchoolsPage({ job, onBack, onRetry }: Props) {
   const [schools, setSchools] = useState<SchoolRecommendResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState<string>('전체');
 
   useEffect(() => {
     setLoading(true);
@@ -47,6 +65,9 @@ export default function SchoolsPage({ job, onBack, onRetry }: Props) {
             <div>
               <p className="selected-job-label">선택한 직업</p>
               <p className="selected-job-name">{job.jobName}</p>
+              {JOB_DESC_MAP[job.jobId] && (
+                <p className="selected-job-desc">{JOB_DESC_MAP[job.jobId]}</p>
+              )}
             </div>
           </div>
           <h2>추천 학교</h2>
@@ -72,11 +93,30 @@ export default function SchoolsPage({ job, onBack, onRetry }: Props) {
           </div>
         )}
 
-        {!loading && !error && schools.length > 0 && (
-          <>
-            <p className="schools-count">총 {schools.length}개 학교</p>
-            <div className="schools-grid">
-              {schools.map((school, i) => (
+        {!loading && !error && schools.length > 0 && (() => {
+          const locations = ['전체', ...Array.from(new Set(schools.map(s => s.location)))];
+          const filtered = selectedLocation === '전체'
+            ? schools
+            : schools.filter(s => s.location === selectedLocation);
+
+          return (
+            <>
+              <div className="location-filter">
+                {locations.map(loc => (
+                  <button
+                    key={loc}
+                    className={`filter-btn ${selectedLocation === loc ? 'active' : ''}`}
+                    onClick={() => setSelectedLocation(loc)}
+                  >
+                    {loc === '전체' ? loc : `${getLocationEmoji(loc)} ${loc}`}
+                  </button>
+                ))}
+              </div>
+              <p className="schools-count">
+                {selectedLocation === '전체' ? `전체 ${schools.length}개` : `${selectedLocation} ${filtered.length}개`} 학교
+              </p>
+              <div className="schools-grid">
+                {filtered.map((school, i) => (
                 <div key={school.schoolId} className="school-card">
                   <div className="school-rank">#{i + 1}</div>
                   <div className="school-loc-emoji">{getLocationEmoji(school.location)}</div>
@@ -87,9 +127,10 @@ export default function SchoolsPage({ job, onBack, onRetry }: Props) {
                   </div>
                 </div>
               ))}
-            </div>
-          </>
-        )}
+              </div>
+            </>
+          );
+        })()}
 
         <div className="schools-actions">
           <button className="btn btn-outline" onClick={onBack}>다른 직업 보기</button>

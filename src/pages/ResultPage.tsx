@@ -7,6 +7,23 @@ interface Props {
   onRetry: () => void;
 }
 
+const JOB_DESC_MAP: Record<string, string> = {
+  SW001: '앱·웹·프로그램을 만드는 소프트웨어 개발자',
+  DA001: '데이터를 분석해 인사이트를 도출하는 데이터 분석가',
+  AI001: 'AI 모델을 개발·활용하는 인공지능 전문가',
+  DE001: '제품·브랜드의 시각적 이미지를 만드는 그래픽 디자이너',
+  DE002: 'UI·UX를 설계해 사용자 경험을 디자인하는 전문가',
+  MK001: '전략을 세워 조직과 사람을 이끄는 경영·마케팅 전문가',
+  RS001: '실험과 탐구로 새로운 것을 발견하는 과학 연구원',
+  CC001: '영상·콘텐츠를 기획·제작하는 미디어 크리에이터',
+  ME001: '기계를 설계·제조·정비하는 기계 엔지니어',
+  EL001: '전기·전자 시스템을 개발·운용하는 전기전자 기술자',
+  CK001: '맛있는 요리를 만드는 조리사·셰프',
+  AG001: '작물과 동물을 재배·사육하는 농업 전문가',
+  AG002: '농산물을 가공·유통하는 식품·농업 전문가',
+  MH001: '사람의 건강을 돌보는 의료·보건 전문가',
+};
+
 const JOB_FIELD_MAP: Record<string, string> = {
   SW001: 'IT', DA001: 'IT', AI001: 'IT',
   DE001: '디자인', DE002: '디자인',
@@ -60,7 +77,7 @@ function aggregateByField(scores: Record<string, number>): Record<string, number
 
 export default function ResultPage({ result, onSelectJob, onRetry }: Props) {
   const recommendedJobs = [...result.recommendedJobs].sort((a, b) => b.matchRate - a.matchRate);
-  const categoryScores = aggregateByField(result.categoryScores);
+  const categoryScores = aggregateByField(result.categoryRates);
   const scoreEntries = Object.entries(categoryScores).sort(([, a], [, b]) => b - a);
   const maxScore = Math.max(...Object.values(categoryScores), 1);
 
@@ -95,7 +112,7 @@ export default function ResultPage({ result, onSelectJob, onRetry }: Props) {
 
           <div className="score-list">
             {scoreEntries.map(([key, score], rank) => {
-              const pct = Math.min(Math.round((score / maxScore) * 100), 100);
+              const barPct = Math.min(Math.round((score / maxScore) * 100), 100);
               const { label, icon } = getMeta(key);
               return (
                 <div key={key} className="score-row">
@@ -106,11 +123,11 @@ export default function ResultPage({ result, onSelectJob, onRetry }: Props) {
                   <div className="score-track">
                     <div
                       className="score-fill"
-                      style={{ width: `${pct}%` }}
+                      style={{ width: `${barPct}%` }}
                       data-rank={rank}
                     />
                   </div>
-                  <span className="score-comment">{getStrengthComment(rank)}</span>
+                  <span className="score-comment">{score}%</span>
                 </div>
               );
             })}
@@ -139,6 +156,7 @@ export default function ResultPage({ result, onSelectJob, onRetry }: Props) {
                   <span className="match-label">일치율</span>
                 </div>
                 <h4 className="job-name">{job.jobName}</h4>
+                <span className="job-desc">{JOB_DESC_MAP[job.jobId] ?? ''}</span>
                 <span className="job-field">{resolveField(job.field)}</span>
                 <span className="job-cta">학교 추천 보기 →</span>
               </button>
