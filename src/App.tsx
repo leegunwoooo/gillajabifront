@@ -17,16 +17,30 @@ export default function App() {
   const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
+    const savedScreen = sessionStorage.getItem('gilajabi_screen') as Screen | null;
     Promise.allSettled([api.getResult(), api.getProgress()]).then(([resultRes, progressRes]) => {
-      if (resultRes.status === 'fulfilled' && resultRes.value?.recommendedJobs?.length) {
+      if (savedScreen === 'result' && resultRes.status === 'fulfilled' && resultRes.value?.recommendedJobs?.length) {
         setResult(resultRes.value);
         setScreen('result');
-      } else if (progressRes.status === 'fulfilled' && Object.keys(progressRes.value).length > 0) {
+      } else if (savedScreen === 'test' && progressRes.status === 'fulfilled' && Object.keys(progressRes.value).length > 0) {
         setScreen('test');
+      } else if (savedScreen) {
+        setScreen(savedScreen);
+      } else {
+        if (resultRes.status === 'fulfilled' && resultRes.value?.recommendedJobs?.length) {
+          setResult(resultRes.value);
+          setScreen('result');
+        } else if (progressRes.status === 'fulfilled' && Object.keys(progressRes.value).length > 0) {
+          setScreen('test');
+        }
       }
       setInitializing(false);
     });
   }, []);
+
+  useEffect(() => {
+    if (!initializing) sessionStorage.setItem('gilajabi_screen', screen);
+  }, [screen, initializing]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
