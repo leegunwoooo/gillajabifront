@@ -250,7 +250,7 @@ export default function SchoolsPage({ job, onBack, onRetry }: Props) {
                       </div>
                     )}
                   </div>
-                  {detailSchool.mainJobs.length > 0 && (
+                  {detailSchool.mainJobs?.length > 0 && (
                     <div className="detail-section">
                       <span className="detail-label">주요 직업</span>
                       <div className="compare-tags" style={{ marginTop: '0.4rem' }}>
@@ -326,7 +326,7 @@ export default function SchoolsPage({ job, onBack, onRetry }: Props) {
                         </a>
                       </div>
                     )}
-                    {school.mainJobs.length > 0 && (
+                    {school.mainJobs?.length > 0 && (
                       <div className="compare-row compare-row-col">
                         <span className="compare-label">주요 직업</span>
                         <div className="compare-tags">
@@ -336,7 +336,7 @@ export default function SchoolsPage({ job, onBack, onRetry }: Props) {
                         </div>
                       </div>
                     )}
-                    {school.jobFields.length > 0 && (
+                    {school.jobFields?.length > 0 && (
                       <div className="compare-row compare-row-col">
                         <span className="compare-label">직업군</span>
                         <div className="compare-tags">

@@ -160,7 +160,7 @@ export default function SchoolListPage() {
                     </div>
                   )}
                 </div>
-                {detailSchool.mainJobs.length > 0 && (
+                {detailSchool.mainJobs?.length > 0 && (
                   <div className="detail-section">
                     <span className="detail-label">주요 직업</span>
                     <div className="compare-tags" style={{ marginTop: '0.4rem' }}>
