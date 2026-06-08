@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api';
-import type { JobRecommendResponse, SchoolRecommendResponse } from '../types';
+import type { JobRecommendResponse, SchoolCompareResponse, SchoolDetailResponse, SchoolRecommendResponse } from '../types';
 import './SchoolsPage.css';
 
 interface Props {
@@ -45,6 +45,45 @@ export default function SchoolsPage({ job, onBack, onRetry }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedLocation, setSelectedLocation] = useState<string>('전체');
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [compareResult, setCompareResult] = useState<SchoolCompareResponse | null>(null);
+  const [compareLoading, setCompareLoading] = useState(false);
+  const [compareError, setCompareError] = useState('');
+  const [detailSchool, setDetailSchool] = useState<SchoolDetailResponse | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  const openDetail = async (schoolId: string) => {
+    setDetailLoading(true);
+    setDetailSchool(null);
+    try {
+      const res = await api.getSchoolDetail(schoolId);
+      setDetailSchool(res);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  const toggleCompare = (schoolId: string) => {
+    setCompareIds((prev) => {
+      if (prev.includes(schoolId)) return prev.filter((id) => id !== schoolId);
+      if (prev.length >= 2) return [prev[1], schoolId];
+      return [...prev, schoolId];
+    });
+  };
+
+  const openCompare = async () => {
+    if (compareIds.length < 2) return;
+    setCompareLoading(true);
+    setCompareError('');
+    try {
+      const res = await api.compareSchools(compareIds[0], compareIds[1]);
+      setCompareResult(res);
+    } catch {
+      setCompareError('학교 비교 정보를 불러오지 못했어요.');
+    } finally {
+      setCompareLoading(false);
+    }
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -106,7 +145,7 @@ export default function SchoolsPage({ job, onBack, onRetry }: Props) {
                   <button
                     key={loc}
                     className={`filter-btn ${selectedLocation === loc ? 'active' : ''}`}
-                    onClick={() => setSelectedLocation(loc)}
+                    onClick={() => setSelectedLocation(selectedLocation === loc ? '전체' : loc)}
                   >
                     {loc === '전체' ? loc : `${getLocationEmoji(loc)} ${loc}`}
                   </button>
@@ -116,21 +155,203 @@ export default function SchoolsPage({ job, onBack, onRetry }: Props) {
                 {selectedLocation === '전체' ? `전체 ${schools.length}개` : `${selectedLocation} ${filtered.length}개`} 학교
               </p>
               <div className="schools-grid">
-                {filtered.map((school, i) => (
-                <div key={school.schoolId} className="school-card">
-                  <div className="school-rank">#{i + 1}</div>
-                  <div className="school-loc-emoji">{getLocationEmoji(school.location)}</div>
-                  <h3 className="school-name">{school.schoolName}</h3>
-                  <div className="school-tags">
-                    <span className="tag tag-location">📍 {school.location}</span>
-                    <span className="tag tag-field">🏭 {school.industryField}</span>
-                  </div>
-                </div>
-              ))}
+                {filtered.map((school, i) => {
+                  const selected = compareIds.includes(school.schoolId);
+                  return (
+                    <div key={school.schoolId} className={`school-card ${selected ? 'compare-selected' : ''}`} onClick={() => openDetail(school.schoolId)}>
+                      <div className="school-rank">#{i + 1}</div>
+                      <div className="school-loc-emoji">{school.icon}</div>
+                      <h3 className="school-name">{school.schoolName}</h3>
+                      <div className="school-tags">
+                        <span className="tag tag-location">📍 {school.location}</span>
+                        <span className="tag tag-field">🏭 {school.industryField}</span>
+                        {school.hasDormitory && <span className="tag tag-dorm">🏠 기숙사</span>}
+                      </div>
+                      <div className="school-meta">
+                        {school.capacity > 0 && <span>정원 {school.capacity}명</span>}
+                        {school.competitionRate && <span>경쟁률 {school.competitionRate}</span>}
+                      </div>
+                      {school.website && (
+                        <a className="school-website" href={school.website} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
+                          홈페이지 →
+                        </a>
+                      )}
+                      <button
+                        className={`compare-toggle-btn ${selected ? 'active' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); toggleCompare(school.schoolId); }}
+                      >
+                        {selected ? '✓ 비교 선택됨' : '비교하기'}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </>
           );
         })()}
+
+        {compareIds.length > 0 && (
+          <div className="compare-bar">
+            <span className="compare-bar-info">
+              {compareIds.length === 1
+                ? '학교를 1개 더 선택하면 비교할 수 있어요'
+                : '2개 학교가 선택되었어요'}
+            </span>
+            <div className="compare-bar-actions">
+              <button
+                className="btn btn-outline compare-clear-btn"
+                onClick={() => setCompareIds([])}
+              >
+                선택 취소
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={openCompare}
+                disabled={compareIds.length < 2 || compareLoading}
+              >
+                {compareLoading ? '불러오는 중...' : '비교 보기'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {(detailLoading || detailSchool) && (
+          <div className="compare-modal-overlay" onClick={() => setDetailSchool(null)}>
+            <div className="compare-modal detail-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="compare-modal-header">
+                <h3>학교 상세 정보</h3>
+                <button className="compare-close-btn" onClick={() => setDetailSchool(null)}>✕</button>
+              </div>
+              {detailLoading && <div className="loading-box"><div className="spinner" /></div>}
+              {detailSchool && (
+                <div className="detail-body">
+                  <div className="detail-hero">
+                    <span className="detail-emoji">{detailSchool.icon}</span>
+                    <div>
+                      <h4 className="detail-name">{detailSchool.schoolName}</h4>
+                      <p className="detail-sub">📍 {detailSchool.location} · 🏭 {detailSchool.industryField}</p>
+                    </div>
+                  </div>
+                  <div className="detail-grid">
+                    <div className="detail-item">
+                      <span className="detail-label">기숙사</span>
+                      <span className="detail-value">{detailSchool.hasDormitory ? '✅ 있음' : '❌ 없음'}</span>
+                    </div>
+                    {detailSchool.capacity > 0 && (
+                      <div className="detail-item">
+                        <span className="detail-label">정원</span>
+                        <span className="detail-value">{detailSchool.capacity}명</span>
+                      </div>
+                    )}
+                    {detailSchool.competitionRate && (
+                      <div className="detail-item">
+                        <span className="detail-label">경쟁률</span>
+                        <span className="detail-value">{detailSchool.competitionRate}</span>
+                      </div>
+                    )}
+                  </div>
+                  {detailSchool.mainJobs.length > 0 && (
+                    <div className="detail-section">
+                      <span className="detail-label">주요 직업</span>
+                      <div className="compare-tags" style={{ marginTop: '0.4rem' }}>
+                        {detailSchool.mainJobs.map((j) => (
+                          <span key={j} className="tag tag-location">{j}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {detailSchool.jobFields.length > 0 && (
+                    <div className="detail-section">
+                      <span className="detail-label">직업군</span>
+                      <div className="compare-tags" style={{ marginTop: '0.4rem' }}>
+                        {detailSchool.jobFields.map((f) => (
+                          <span key={f} className="tag tag-field">{f}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {detailSchool.website && (
+                    <a className="detail-website-btn" href={detailSchool.website} target="_blank" rel="noreferrer">
+                      홈페이지 바로가기 →
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {compareResult && (
+          <div className="compare-modal-overlay" onClick={() => setCompareResult(null)}>
+            <div className="compare-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="compare-modal-header">
+                <h3>학교 비교</h3>
+                <button className="compare-close-btn" onClick={() => setCompareResult(null)}>✕</button>
+              </div>
+              {compareError && <p className="compare-error">{compareError}</p>}
+              <div className="compare-columns">
+                {([compareResult.school1, compareResult.school2] as const).map((school, idx) => (
+                  <div key={school.schoolId} className={`compare-col compare-col-${idx + 1}`}>
+                    <div className="compare-col-emoji">{school.icon}</div>
+                    <h4 className="compare-col-name">{school.schoolName}</h4>
+                    <div className="compare-row">
+                      <span className="compare-label">위치</span>
+                      <span className="compare-value">📍 {school.location}</span>
+                    </div>
+                    <div className="compare-row">
+                      <span className="compare-label">산업분야</span>
+                      <span className="compare-value">🏭 {school.industryField}</span>
+                    </div>
+                    <div className="compare-row">
+                      <span className="compare-label">기숙사</span>
+                      <span className="compare-value">{school.hasDormitory ? '✅ 있음' : '❌ 없음'}</span>
+                    </div>
+                    {school.capacity > 0 && (
+                      <div className="compare-row">
+                        <span className="compare-label">정원</span>
+                        <span className="compare-value">{school.capacity}명</span>
+                      </div>
+                    )}
+                    {school.competitionRate && (
+                      <div className="compare-row">
+                        <span className="compare-label">경쟁률</span>
+                        <span className="compare-value">{school.competitionRate}</span>
+                      </div>
+                    )}
+                    {school.website && (
+                      <div className="compare-row">
+                        <span className="compare-label">홈페이지</span>
+                        <a className="compare-link" href={school.website} target="_blank" rel="noreferrer">
+                          바로가기 →
+                        </a>
+                      </div>
+                    )}
+                    {school.mainJobs.length > 0 && (
+                      <div className="compare-row compare-row-col">
+                        <span className="compare-label">주요 직업</span>
+                        <div className="compare-tags">
+                          {school.mainJobs.map((j) => (
+                            <span key={j} className="tag tag-location">{j}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {school.jobFields.length > 0 && (
+                      <div className="compare-row compare-row-col">
+                        <span className="compare-label">직업군</span>
+                        <div className="compare-tags">
+                          {school.jobFields.map((f) => (
+                            <span key={f} className="tag tag-field">{f}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="schools-actions">
           <button className="btn btn-outline" onClick={onBack}>다른 직업 보기</button>

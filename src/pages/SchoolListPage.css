@@ -1,0 +1,97 @@
+@import './SchoolsPage.css';
+
+.school-list-page {
+  min-height: calc(100vh - 64px);
+  background: #f8fafc;
+  padding: 2rem 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.school-list-inner {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.school-list-header {
+  text-align: center;
+}
+
+.school-list-header h2 {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #0f172a;
+  margin: 0 0 0.25rem;
+}
+
+.school-list-header p {
+  color: #64748b;
+  margin: 0;
+}
+
+.school-list-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: #fff;
+  border-radius: 1.2rem;
+  padding: 1.25rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.school-search {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 0.7rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.school-search:focus {
+  border-color: #2563eb;
+}
+
+.dorm-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dorm-toggle input {
+  accent-color: #2563eb;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.schools-count {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+  margin: 0;
+}
+
+.empty-msg {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #64748b;
+  font-weight: 600;
+  padding: 3rem 0;
+}
+
+
+@media (max-width: 480px) {
+  .school-list-header h2 { font-size: 1.5rem; }
+}

@@ -18,14 +18,43 @@ export default function TestPage({ onBack, onResult }: Props) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [savedIndicator, setSavedIndicator] = useState(false);
   const topRef = useRef<HTMLDivElement>(null);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    api.getQuestions()
-      .then(setQuestions)
+    Promise.all([api.getQuestions(), api.getProgress().catch(() => ({}))])
+      .then(([qs, progress]) => {
+        setQuestions(qs);
+        const restored: Record<number, number> = {};
+        for (const [k, v] of Object.entries(progress)) {
+          restored[Number(k)] = v;
+        }
+        if (Object.keys(restored).length > 0) {
+          setAnswers(restored);
+          const savedPage = sessionStorage.getItem('gilajabi_test_page');
+          if (savedPage !== null) {
+            const totalPages = Math.ceil(qs.length / PER_PAGE);
+            setPage(Math.min(Number(savedPage), totalPages - 1));
+          }
+        }
+      })
       .catch(() => setError('문항을 불러오지 못했어요. 잠시 후 다시 시도해주세요.'))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (loading || Object.keys(answers).length === 0) return;
+    api.saveProgress({
+      answers: Object.fromEntries(
+        Object.entries(answers).map(([k, v]) => [String(k), v])
+      ),
+    }).then(() => {
+      setSavedIndicator(true);
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = setTimeout(() => setSavedIndicator(false), 1500);
+    }).catch(() => {});
+  }, [answers, loading]);
 
   const totalPages = Math.ceil(questions.length / PER_PAGE);
   const pageQuestions = questions.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
@@ -40,19 +69,25 @@ export default function TestPage({ onBack, onResult }: Props) {
   };
 
   const changePage = (dir: number) => {
-    setPage((p) => p + dir);
+    setPage((p) => {
+      const next = p + dir;
+      sessionStorage.setItem('gilajabi_test_page', String(next));
+      return next;
+    });
     topRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      // 명세: answers 키는 문자열 질문 id, 값은 1~5 정수
-      const result = await api.analyze({
+      const payload = {
         answers: Object.fromEntries(
           Object.entries(answers).map(([k, v]) => [String(k), v])
         ),
-      });
+      };
+      const result = await api.analyze(payload);
+      api.clearProgress().catch(() => {});
+      sessionStorage.removeItem('gilajabi_test_page');
       onResult(result);
     } catch {
       setError('분석 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
@@ -98,7 +133,10 @@ export default function TestPage({ onBack, onResult }: Props) {
         <div className="progress-wrap">
           <div className="progress-meta">
             <span>{answeredCount} / {questions.length} 답변 완료</span>
-            <span>{progressPct}%</span>
+            <span className="save-indicator-wrap">
+              {savedIndicator && <span className="save-indicator">저장됨 ✓</span>}
+              <span>{progressPct}%</span>
+            </span>
           </div>
           <div className="progress-track">
             <div className="progress-fill" style={{ width: `${progressPct}%` }} />

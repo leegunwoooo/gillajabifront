@@ -1,21 +1,41 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { api } from './api';
 import type { AptitudeResultResponse, JobRecommendResponse } from './types';
 import HomePage from './pages/HomePage';
 import TestPage from './pages/TestPage';
 import ResultPage from './pages/ResultPage';
 import SchoolsPage from './pages/SchoolsPage';
+import SchoolListPage from './pages/SchoolListPage';
 import './App.css';
 
-type Screen = 'home' | 'test' | 'result' | 'schools';
+type Screen = 'home' | 'test' | 'result' | 'schools' | 'schoolList';
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('home');
   const [result, setResult] = useState<AptitudeResultResponse | null>(null);
   const [selectedJob, setSelectedJob] = useState<JobRecommendResponse | null>(null);
+  const [initializing, setInitializing] = useState(true);
+
+  useEffect(() => {
+    Promise.allSettled([api.getResult(), api.getProgress()]).then(([resultRes, progressRes]) => {
+      if (resultRes.status === 'fulfilled' && resultRes.value?.recommendedJobs?.length) {
+        setResult(resultRes.value);
+        setScreen('result');
+      } else if (progressRes.status === 'fulfilled' && Object.keys(progressRes.value).length > 0) {
+        setScreen('test');
+      }
+      setInitializing(false);
+    });
+  }, []);
 
   const handleResult = (r: AptitudeResultResponse) => {
     setResult(r);
     setScreen('result');
+  };
+
+  const handleRetry = () => {
+    api.clearResult().catch(() => {});
+    setScreen('test');
   };
 
   const handleSelectJob = (job: JobRecommendResponse) => {
@@ -33,34 +53,39 @@ export default function App() {
           </button>
           <nav>
             <button className="nav-link" onClick={() => setScreen('home')}>홈</button>
+            <button className="nav-link" onClick={() => setScreen('schoolList')}>학교 목록</button>
             <button className="nav-link nav-cta" onClick={() => setScreen('test')}>적성 검사</button>
           </nav>
         </div>
       </header>
 
       <main className="app-main">
-        {screen === 'home' && (
+        {initializing && <div className="app-init-loader"><div className="spinner" /></div>}
+        {!initializing && screen === 'home' && (
           <HomePage onStart={() => setScreen('test')} />
         )}
-        {screen === 'test' && (
+        {!initializing && screen === 'test' && (
           <TestPage
             onBack={() => setScreen('home')}
             onResult={handleResult}
           />
         )}
-        {screen === 'result' && result && (
+        {!initializing && screen === 'result' && result && (
           <ResultPage
             result={result}
             onSelectJob={handleSelectJob}
-            onRetry={() => setScreen('test')}
+            onRetry={handleRetry}
           />
         )}
-        {screen === 'schools' && selectedJob && (
+        {!initializing && screen === 'schools' && selectedJob && (
           <SchoolsPage
             job={selectedJob}
             onBack={() => setScreen('result')}
             onRetry={() => setScreen('test')}
           />
+        )}
+        {!initializing && screen === 'schoolList' && (
+          <SchoolListPage />
         )}
       </main>
 

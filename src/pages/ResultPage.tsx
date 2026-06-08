@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { AptitudeResultResponse, JobRecommendResponse } from '../types';
 import './ResultPage.css';
 
@@ -76,6 +77,7 @@ function aggregateByField(scores: Record<string, number>): Record<string, number
 }
 
 export default function ResultPage({ result, onSelectJob, onRetry }: Props) {
+  const [showAllRanks, setShowAllRanks] = useState(false);
   const recommendedJobs = [...result.recommendedJobs].sort((a, b) => b.matchRate - a.matchRate);
   const categoryScores = aggregateByField(result.categoryRates);
   const scoreEntries = Object.entries(categoryScores).sort(([, a], [, b]) => b - a);
@@ -110,27 +112,51 @@ export default function ResultPage({ result, onSelectJob, onRetry }: Props) {
             );
           })()}
 
-          <div className="score-list">
-            {scoreEntries.map(([key, score], rank) => {
-              const barPct = Math.min(Math.round((score / maxScore) * 100), 100);
-              const { label, icon } = getMeta(key);
-              return (
-                <div key={key} className="score-row">
-                  <span className="score-label">
-                    <span className="score-icon">{icon}</span>
-                    {label}
-                  </span>
-                  <div className="score-track">
-                    <div
-                      className="score-fill"
-                      style={{ width: `${barPct}%` }}
-                      data-rank={rank}
-                    />
+          <div className="score-split">
+            {/* 왼쪽: 순위 목록 */}
+            <div className="score-rank-list">
+              {(showAllRanks ? scoreEntries : scoreEntries.slice(0, 3)).map(([key, score], rank) => {
+                const { label, icon } = getMeta(key);
+                return (
+                  <div key={key} className="score-rank-row">
+                    <span className="score-rank-num" data-rank={rank}>{rank + 1}등</span>
+                    <span className="score-rank-icon">{icon}</span>
+                    <span className="score-rank-label">{label}</span>
+                    <span className="score-rank-pct">{score}%</span>
                   </div>
-                  <span className="score-comment">{score}%</span>
+                );
+              })}
+              {scoreEntries.length > 3 && (
+                <button className="score-more-btn" onClick={() => setShowAllRanks(v => !v)}>
+                  {showAllRanks ? '접기 ▲' : `더 보기 +${scoreEntries.length - 3} ▼`}
+                </button>
+              )}
+            </div>
+
+            {/* 오른쪽: 원형 그래프 하나 (1등 기준) */}
+            {(() => {
+              const [, topScore] = scoreEntries[0] ?? [];
+              const R = 52;
+              const CIRC = 2 * Math.PI * R;
+              const offset = CIRC * (1 - (topScore ?? 0) / 100);
+              return (
+                <div className="score-ring-wrap">
+                  <svg viewBox="0 0 128 128" width="128" height="128">
+                    <circle cx="64" cy="64" r={R} className="score-ring-track" />
+                    <circle
+                      cx="64" cy="64" r={R}
+                      className="score-ring-fill"
+                      data-rank={0}
+                      style={{ strokeDasharray: CIRC, strokeDashoffset: offset }}
+                    />
+                  </svg>
+                  <div className="score-ring-inner">
+                    <span className="score-ring-pct">{topScore ?? 0}%</span>
+                    <span className="score-ring-sub">1등</span>
+                  </div>
                 </div>
               );
-            })}
+            })()}
           </div>
         </div>
 

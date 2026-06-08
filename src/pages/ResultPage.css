@@ -69,11 +69,129 @@
   margin: -1rem 0 1.5rem;
 }
 
-/* Score bars */
-.score-list {
+/* Score split layout */
+.score-split {
+  display: flex;
+  gap: 1.5rem;
+}
+
+/* 왼쪽: 순위 목록 */
+.score-rank-list {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  justify-content: space-around;
+  gap: 0.5rem;
+}
+
+.score-rank-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+}
+
+.score-rank-num {
+  font-size: 0.8rem;
+  font-weight: 900;
+  min-width: 36px;
+  text-align: center;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.score-rank-num[data-rank="0"] { background: #2563eb; color: #fff; }
+.score-rank-num[data-rank="1"] { background: #7c3aed; color: #fff; }
+.score-rank-num[data-rank="2"] { background: #0891b2; color: #fff; }
+
+.score-rank-icon {
+  font-size: 1.1rem;
+}
+
+.score-rank-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #334155;
+  flex: 1;
+}
+
+.score-rank-pct {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #2563eb;
+  white-space: nowrap;
+}
+
+/* 오른쪽: 원형 그래프 하나 */
+.score-ring-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 128px;
+  height: 128px;
+  align-self: center;
+}
+
+.score-ring-track {
+  fill: none;
+  stroke: #f1f5f9;
+  stroke-width: 10;
+}
+
+.score-ring-fill {
+  fill: none;
+  stroke: #94a3b8;
+  stroke-width: 10;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dashoffset 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.score-ring-fill[data-rank="0"] { stroke: #2563eb; }
+
+.score-ring-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+}
+
+.score-ring-pct {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #1e40af;
+  line-height: 1;
+}
+
+.score-ring-sub {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.score-more-btn {
+  background: none;
+  border: 1.5px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.35rem 0.8rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  align-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+.score-more-btn:hover {
+  border-color: #94a3b8;
+  color: #0f172a;
 }
 
 /* Top category highlight */
@@ -118,51 +236,6 @@
   border-radius: 999px;
 }
 
-/* Score rows */
-.score-row {
-  display: grid;
-  grid-template-columns: 130px 1fr auto;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.score-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #334155;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.score-icon {
-  font-size: 1rem;
-}
-
-.score-track {
-  height: 10px;
-  background: #f1f5f9;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.score-fill {
-  height: 100%;
-  border-radius: 999px;
-  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-  background: #2563eb;
-}
-
-.score-fill[data-rank="0"] { background: linear-gradient(90deg, #2563eb, #7c3aed); }
-.score-fill[data-rank="1"] { background: #3b82f6; }
-.score-fill[data-rank="2"] { background: #60a5fa; }
-
-.score-comment {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #94a3b8;
-  white-space: nowrap;
-}
 
 /* Jobs grid */
 .jobs-grid {
@@ -276,8 +349,12 @@
 }
 
 @media (max-width: 480px) {
-  .score-row {
-    grid-template-columns: 80px 1fr 40px;
+  .score-split {
+    gap: 0.75rem;
+  }
+  .score-ring-wrap {
+    width: 68px;
+    height: 68px;
   }
   .jobs-grid {
     grid-template-columns: repeat(2, 1fr);
