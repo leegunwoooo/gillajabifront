@@ -1,8 +1,15 @@
+import { useEffect, useState } from 'react';
+import img0 from '../img.png';
+import img1 from '../img_1.png';
+import img2 from '../img_2.png';
+import img3 from '../img_3.png';
 import './HomePage.css';
 
 interface Props {
   onStart: () => void;
 }
+
+const slides = [img0, img1, img2, img3];
 
 const features = [
   { step: '01', icon: '📝', title: '적성 검사', desc: '나의 흥미와 성향을 알아보는 간단한 설문에 답해요' },
@@ -17,7 +24,10 @@ const compareRows = [
   { name: '🧭 길라잡이', aptitude: true, job: true, school: true, highlight: true },
 ];
 
-const sampleJobs = ['💻 소프트웨어 개발자', '⚡ 전기 기술자', '🎨 디자이너', '🔧 기계 엔지니어', '🍳 조리사'];
+const sampleJobs = [
+  ['💻 소프트웨어 개발자', '⚡ 전기 기술자', '🎨 디자이너'],
+  ['🔧 기계 엔지니어', '🍳 조리사'],
+];
 
 function SchoolCell({ val }: { val: boolean | null }) {
   if (val === null) return <td>🔍 단순 조회</td>;
@@ -25,10 +35,33 @@ function SchoolCell({ val }: { val: boolean | null }) {
 }
 
 export default function HomePage({ onStart }: Props) {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrent(c => (c + 1) % slides.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <div className="home">
       {/* Hero */}
       <section className="hero">
+        {/* 배경 슬라이드 */}
+        <div className="hero-bg">
+          {slides.map((src, i) => (
+            <img
+              key={i}
+              src={src}
+              className={`hero-bg-img ${i === current ? 'active' : ''}`}
+              alt=""
+            />
+          ))}
+          <div className="hero-bg-overlay" />
+        </div>
+
+        <div className="hero-inner">
         <div className="hero-content">
           <span className="hero-badge">중학생을 위한 진로 탐색 서비스</span>
           <h1 className="hero-title">
@@ -45,11 +78,16 @@ export default function HomePage({ onStart }: Props) {
           </button>
         </div>
         <div className="hero-visual">
-          {sampleJobs.map((job, i) => (
-            <div key={job} className="job-chip" style={{ animationDelay: `${i * 0.2}s` }}>
-              {job}
+          {sampleJobs.map((row, ri) => (
+            <div key={ri} className="job-row">
+              {row.map((job, ci) => (
+                <div key={job} className="job-chip" style={{ animationDelay: `${(ri * 3 + ci) * 0.15}s` }}>
+                  {job}
+                </div>
+              ))}
             </div>
           ))}
+        </div>
         </div>
       </section>
 

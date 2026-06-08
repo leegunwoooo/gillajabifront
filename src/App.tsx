@@ -28,6 +28,10 @@ export default function App() {
     });
   }, []);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [screen]);
+
   const handleResult = (r: AptitudeResultResponse) => {
     setResult(r);
     setScreen('result');

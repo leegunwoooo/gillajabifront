@@ -74,7 +74,9 @@ export default function TestPage({ onBack, onResult }: Props) {
       sessionStorage.setItem('gilajabi_test_page', String(next));
       return next;
     });
-    topRef.current?.scrollIntoView({ behavior: 'smooth' });
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   };
 
   const handleSubmit = async () => {
