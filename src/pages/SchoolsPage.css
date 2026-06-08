@@ -1,17 +1,17 @@
 .schools-page {
   min-height: calc(100vh - 64px);
   background: #f8fafc;
-  padding: 2rem 1rem;
+  padding: 3rem;
   display: flex;
   justify-content: center;
 }
 
 .schools-inner {
   width: 100%;
-  max-width: 780px;
+  max-width: 1280px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .schools-header {
@@ -125,8 +125,8 @@
 /* Grid */
 .schools-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
 }
 
 .school-card {

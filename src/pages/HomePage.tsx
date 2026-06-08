@@ -7,7 +7,7 @@ interface Props {
 const features = [
   { step: '01', icon: '📝', title: '적성 검사', desc: '나의 흥미와 성향을 알아보는 간단한 설문에 답해요' },
   { step: '02', icon: '💼', title: '직업 추천', desc: '검사 결과를 바탕으로 나에게 맞는 직업을 추천받아요' },
-  { step: '03', icon: '🏫', title: '학교 추천', desc: '직업에 맞는 특성화고·마이스터고를 찾아봐요' },
+  { step: '03', icon: '🏫', title: '학교 추천', desc: '직업에 맞는 고등학교를 찾아봐요' },
 ];
 
 const compareRows = [
@@ -38,7 +38,7 @@ export default function HomePage({ onStart }: Props) {
           </h1>
           <p className="hero-desc">
             간단한 적성 검사로 어울리는 직업을 추천받고,<br />
-            특성화고·마이스터고까지 한 번에 알아보세요.
+            고등학교까지 한 번에 알아보세요.
           </p>
           <button className="btn btn-primary btn-lg" onClick={onStart}>
             적성 검사 시작하기 →

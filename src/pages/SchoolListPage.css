@@ -3,17 +3,17 @@
 .school-list-page {
   min-height: calc(100vh - 64px);
   background: #f8fafc;
-  padding: 2rem 1rem;
+  padding: 3rem;
   display: flex;
   justify-content: center;
 }
 
 .school-list-inner {
   width: 100%;
-  max-width: 900px;
+  max-width: 1280px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .school-list-header {

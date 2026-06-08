@@ -59,7 +59,7 @@ export default function SchoolListPage() {
       <div className="school-list-inner">
         <div className="school-list-header">
           <h2>🏫 전체 학교 목록</h2>
-          <p>특성화고·마이스터고를 자유롭게 검색해보세요</p>
+          <p>고등학교를 자유롭게 검색해보세요</p>
         </div>
 
         <div className="school-list-filters">

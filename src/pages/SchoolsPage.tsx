@@ -110,7 +110,7 @@ export default function SchoolsPage({ job, onBack, onRetry }: Props) {
             </div>
           </div>
           <h2>추천 학교</h2>
-          <p>선택한 직업에 맞는 특성화고·마이스터고예요</p>
+          <p>선택한 직업에 맞는 고등학교예요</p>
         </div>
 
         {loading && (
