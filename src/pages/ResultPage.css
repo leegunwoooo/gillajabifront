@@ -49,6 +49,31 @@
   color: #0f172a;
 }
 
+.ai-comment {
+  background: linear-gradient(135deg, #eff6ff, #f0fdf4);
+  border: 1.5px solid #bfdbfe;
+  border-radius: 1.2rem;
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.ai-comment-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #2563eb;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ai-comment-text {
+  font-size: 0.97rem;
+  color: #334155;
+  line-height: 1.75;
+  margin: 0;
+}
+
 .result-section {
   background: #fff;
   border-radius: 1.2rem;

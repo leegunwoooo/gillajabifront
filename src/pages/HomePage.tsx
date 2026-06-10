@@ -7,6 +7,7 @@ import './HomePage.css';
 
 interface Props {
   onStart: () => void;
+  onOpenChat: () => void;
 }
 
 const slides = [img0, img1, img2, img3];
@@ -34,7 +35,7 @@ function SchoolCell({ val }: { val: boolean | null }) {
   return <td>{val ? '✅' : '❌'}</td>;
 }
 
-export default function HomePage({ onStart }: Props) {
+export default function HomePage({ onStart, onOpenChat }: Props) {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
@@ -73,9 +74,14 @@ export default function HomePage({ onStart }: Props) {
             간단한 적성 검사로 어울리는 직업을 추천받고,<br />
             고등학교까지 한 번에 알아보세요.
           </p>
-          <button className="btn btn-primary btn-lg" onClick={onStart}>
-            적성 검사 시작하기 →
-          </button>
+          <div className="hero-btns">
+            <button className="btn btn-primary btn-lg" onClick={onStart}>
+              적성 검사 시작하기 →
+            </button>
+            <button className="btn btn-chat btn-lg" onClick={onOpenChat}>
+              🤖 AI에게 물어보기
+            </button>
+          </div>
         </div>
         <div className="hero-visual">
           {sampleJobs.map((row, ri) => (

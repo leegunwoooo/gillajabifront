@@ -6,6 +6,7 @@ import TestPage from './pages/TestPage';
 import ResultPage from './pages/ResultPage';
 import SchoolsPage from './pages/SchoolsPage';
 import SchoolListPage from './pages/SchoolListPage';
+import SchoolChat from './components/SchoolChat';
 import './App.css';
 
 type Screen = 'home' | 'test' | 'result' | 'schools' | 'schoolList';
@@ -15,6 +16,7 @@ export default function App() {
   const [result, setResult] = useState<AptitudeResultResponse | null>(null);
   const [selectedJob, setSelectedJob] = useState<JobRecommendResponse | null>(null);
   const [initializing, setInitializing] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     const savedScreen = sessionStorage.getItem('gilajabi_screen') as Screen | null;
@@ -80,7 +82,7 @@ export default function App() {
       <main className="app-main">
         {initializing && <div className="app-init-loader"><div className="spinner" /></div>}
         {!initializing && screen === 'home' && (
-          <HomePage onStart={() => setScreen('test')} />
+          <HomePage onStart={() => setScreen('test')} onOpenChat={() => setChatOpen(true)} />
         )}
         {!initializing && screen === 'test' && (
           <TestPage
@@ -106,6 +108,8 @@ export default function App() {
           <SchoolListPage />
         )}
       </main>
+
+      <SchoolChat open={chatOpen} setOpen={setChatOpen} />
 
       <footer className="app-footer">
         <p>🧭 길라잡이 — 중학생을 위한 특성화·마이스터고 추천 서비스</p>

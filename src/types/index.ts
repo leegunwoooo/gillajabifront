@@ -20,6 +20,7 @@ export interface AptitudeResultResponse {
   categoryScores: Record<string, number>;
   categoryRates: Record<string, number>;
   recommendedJobs: JobRecommendResponse[];
+  aiComment?: string;
 }
 
 export interface SchoolSummaryResponse {
@@ -66,7 +67,6 @@ export interface SchoolDetail {
   location: string;
   industryField: string;
   icon: string;
-  website: string;
   hasDormitory: boolean;
   capacity: number;
   competitionRate: string;
@@ -74,7 +74,16 @@ export interface SchoolDetail {
   jobFields: string[];
 }
 
+export interface SchoolChatRequest {
+  query: string;
+}
+
+export interface SchoolChatResponse {
+  answer: string;
+}
+
 export interface SchoolCompareResponse {
   school1: SchoolDetail;
   school2: SchoolDetail;
+  aiSummary?: string;
 }

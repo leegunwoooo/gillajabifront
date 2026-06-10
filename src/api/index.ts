@@ -2,6 +2,8 @@ import type {
   AptitudeAnswerRequest,
   AptitudeResultResponse,
   QuestionResponse,
+  SchoolChatRequest,
+  SchoolChatResponse,
   SchoolCompareResponse,
   SchoolDetailResponse,
   SchoolRecommendResponse,
@@ -70,4 +72,10 @@ export const api = {
     request<SchoolCompareResponse>(
       `/api/schools/compare?school1=${encodeURIComponent(school1)}&school2=${encodeURIComponent(school2)}`
     ),
+
+  chatSchool: (body: SchoolChatRequest) =>
+    request<SchoolChatResponse>('/api/schools/chat', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
 };

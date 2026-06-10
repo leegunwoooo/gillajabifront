@@ -289,6 +289,12 @@ export default function SchoolsPage({ job, onBack, onRetry }: Props) {
                 <button className="compare-close-btn" onClick={() => setCompareResult(null)}>✕</button>
               </div>
               {compareError && <p className="compare-error">{compareError}</p>}
+              {compareResult.aiSummary && (
+                <div className="ai-summary">
+                  <span className="ai-summary-label">🤖 AI 비교 요약</span>
+                  <p className="ai-summary-text">{compareResult.aiSummary}</p>
+                </div>
+              )}
               <div className="compare-columns">
                 {([compareResult.school1, compareResult.school2] as const).map((school, idx) => (
                   <div key={school.schoolId} className={`compare-col compare-col-${idx + 1}`}>
@@ -316,14 +322,6 @@ export default function SchoolsPage({ job, onBack, onRetry }: Props) {
                       <div className="compare-row">
                         <span className="compare-label">경쟁률</span>
                         <span className="compare-value">{school.competitionRate}</span>
-                      </div>
-                    )}
-                    {school.website && (
-                      <div className="compare-row">
-                        <span className="compare-label">홈페이지</span>
-                        <a className="compare-link" href={school.website} target="_blank" rel="noreferrer">
-                          바로가기 →
-                        </a>
                       </div>
                     )}
                     {school.mainJobs?.length > 0 && (

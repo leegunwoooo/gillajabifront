@@ -92,6 +92,13 @@ export default function ResultPage({ result, onSelectJob, onRetry }: Props) {
           <button className="retry-btn" onClick={onRetry}>← 다시 검사하기</button>
         </div>
 
+        {result.aiComment && (
+          <div className="ai-comment">
+            <span className="ai-comment-label">🤖 AI 분석</span>
+            <p className="ai-comment-text">{result.aiComment}</p>
+          </div>
+        )}
+
         {/* Category Scores */}
         <div className="result-section">
           <h3 className="result-section-title">✨ 나의 강점 분야</h3>
