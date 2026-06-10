@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api';
-import type { SchoolDetailResponse, SchoolSummaryResponse } from '../types';
+import type { SchoolSummaryResponse } from '../types';
 import './SchoolListPage.css';
 
 const LOCATION_EMOJI: Record<string, string> = {
@@ -17,15 +17,17 @@ function getLocationEmoji(location: string) {
   return '📍';
 }
 
-export default function SchoolListPage() {
+interface Props {
+  onViewDetail: (schoolId: string) => void;
+}
+
+export default function SchoolListPage({ onViewDetail }: Props) {
   const [schools, setSchools] = useState<SchoolSummaryResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('전체');
   const [dormOnly, setDormOnly] = useState(false);
-  const [detailSchool, setDetailSchool] = useState<SchoolDetailResponse | null>(null);
-  const [detailLoading, setDetailLoading] = useState(false);
 
   useEffect(() => {
     api.getAllSchools()
@@ -33,17 +35,6 @@ export default function SchoolListPage() {
       .catch(() => setError('학교 목록을 불러오지 못했어요.'))
       .finally(() => setLoading(false));
   }, []);
-
-  const openDetail = async (schoolId: string) => {
-    setDetailLoading(true);
-    setDetailSchool(null);
-    try {
-      const res = await api.getSchoolDetail(schoolId);
-      setDetailSchool(res);
-    } finally {
-      setDetailLoading(false);
-    }
-  };
 
   const locations = ['전체', ...Array.from(new Set(schools.map(s => s.location)))];
 
@@ -103,7 +94,7 @@ export default function SchoolListPage() {
             <p className="schools-count">총 {filtered.length}개 학교</p>
             <div className="schools-grid">
               {filtered.map(school => (
-                <div key={school.schoolId} className="school-card" onClick={() => openDetail(school.schoolId)}>
+                <div key={school.schoolId} className="school-card" onClick={() => onViewDetail(school.schoolId)}>
                   <div className="school-loc-emoji">{school.icon}</div>
                   <h3 className="school-name">{school.schoolName}</h3>
                   <div className="school-tags">
@@ -125,71 +116,6 @@ export default function SchoolListPage() {
         )}
       </div>
 
-      {(detailLoading || detailSchool) && (
-        <div className="compare-modal-overlay" onClick={() => setDetailSchool(null)}>
-          <div className="compare-modal detail-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="compare-modal-header">
-              <h3>학교 상세 정보</h3>
-              <button className="compare-close-btn" onClick={() => setDetailSchool(null)}>✕</button>
-            </div>
-            {detailLoading && <div className="loading-box"><div className="spinner" /></div>}
-            {detailSchool && (
-              <div className="detail-body">
-                <div className="detail-hero">
-                  <span className="detail-emoji">{detailSchool.icon}</span>
-                  <div>
-                    <h4 className="detail-name">{detailSchool.schoolName}</h4>
-                    <p className="detail-sub">📍 {detailSchool.location} · 🏭 {detailSchool.industryField}</p>
-                  </div>
-                </div>
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <span className="detail-label">기숙사</span>
-                    <span className="detail-value">{detailSchool.hasDormitory ? '✅ 있음' : '❌ 없음'}</span>
-                  </div>
-                  {detailSchool.capacity > 0 && (
-                    <div className="detail-item">
-                      <span className="detail-label">정원</span>
-                      <span className="detail-value">{detailSchool.capacity}명</span>
-                    </div>
-                  )}
-                  {detailSchool.competitionRate && (
-                    <div className="detail-item">
-                      <span className="detail-label">경쟁률</span>
-                      <span className="detail-value">{detailSchool.competitionRate}</span>
-                    </div>
-                  )}
-                </div>
-                {detailSchool.mainJobs?.length > 0 && (
-                  <div className="detail-section">
-                    <span className="detail-label">주요 직업</span>
-                    <div className="compare-tags" style={{ marginTop: '0.4rem' }}>
-                      {detailSchool.mainJobs.map(j => (
-                        <span key={j} className="tag tag-location">{j}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {detailSchool.jobFields.length > 0 && (
-                  <div className="detail-section">
-                    <span className="detail-label">직업군</span>
-                    <div className="compare-tags" style={{ marginTop: '0.4rem' }}>
-                      {detailSchool.jobFields.map(f => (
-                        <span key={f} className="tag tag-field">{f}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {detailSchool.website && (
-                  <a className="detail-website-btn" href={detailSchool.website} target="_blank" rel="noreferrer">
-                    홈페이지 바로가기 →
-                  </a>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

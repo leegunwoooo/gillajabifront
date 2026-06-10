@@ -6,10 +6,11 @@ import TestPage from './pages/TestPage';
 import ResultPage from './pages/ResultPage';
 import SchoolsPage from './pages/SchoolsPage';
 import SchoolListPage from './pages/SchoolListPage';
+import SchoolDetailPage from './pages/SchoolDetailPage';
 import SchoolChat from './components/SchoolChat';
 import './App.css';
 
-type Screen = 'home' | 'test' | 'result' | 'schools' | 'schoolList';
+type Screen = 'home' | 'test' | 'result' | 'schools' | 'schoolList' | 'schoolDetail';
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('home');
@@ -17,6 +18,14 @@ export default function App() {
   const [selectedJob, setSelectedJob] = useState<JobRecommendResponse | null>(null);
   const [initializing, setInitializing] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
+  const [selectedSchoolId, setSelectedSchoolId] = useState<string | null>(null);
+  const [prevScreen, setPrevScreen] = useState<Screen>('home');
+
+  const openSchoolDetail = (schoolId: string) => {
+    setPrevScreen(screen);
+    setSelectedSchoolId(schoolId);
+    setScreen('schoolDetail');
+  };
 
   useEffect(() => {
     const savedScreen = sessionStorage.getItem('gilajabi_screen') as Screen | null;
@@ -82,7 +91,7 @@ export default function App() {
       <main className="app-main">
         {initializing && <div className="app-init-loader"><div className="spinner" /></div>}
         {!initializing && screen === 'home' && (
-          <HomePage onStart={() => setScreen('test')} onOpenChat={() => setChatOpen(true)} />
+          <HomePage onStart={() => setScreen('test')} onOpenChat={() => setChatOpen(true)} onViewDetail={openSchoolDetail} />
         )}
         {!initializing && screen === 'test' && (
           <TestPage
@@ -102,10 +111,17 @@ export default function App() {
             job={selectedJob}
             onBack={() => setScreen('result')}
             onRetry={() => setScreen('test')}
+            onViewDetail={openSchoolDetail}
           />
         )}
         {!initializing && screen === 'schoolList' && (
-          <SchoolListPage />
+          <SchoolListPage onViewDetail={openSchoolDetail} />
+        )}
+        {!initializing && screen === 'schoolDetail' && selectedSchoolId && (
+          <SchoolDetailPage
+            schoolId={selectedSchoolId}
+            onBack={() => setScreen(prevScreen)}
+          />
         )}
       </main>
 

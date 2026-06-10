@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api';
-import type { JobRecommendResponse, SchoolCompareResponse, SchoolDetailResponse, SchoolRecommendResponse } from '../types';
+import type { JobRecommendResponse, SchoolCompareResponse, SchoolRecommendResponse } from '../types';
 import './SchoolsPage.css';
 
 interface Props {
   job: JobRecommendResponse;
   onBack: () => void;
   onRetry: () => void;
+  onViewDetail: (schoolId: string) => void;
 }
 
 const JOB_DESC_MAP: Record<string, string> = {
@@ -40,7 +41,7 @@ function getLocationEmoji(location: string) {
   return '📍';
 }
 
-export default function SchoolsPage({ job, onBack, onRetry }: Props) {
+export default function SchoolsPage({ job, onBack, onRetry, onViewDetail }: Props) {
   const [schools, setSchools] = useState<SchoolRecommendResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -49,19 +50,6 @@ export default function SchoolsPage({ job, onBack, onRetry }: Props) {
   const [compareResult, setCompareResult] = useState<SchoolCompareResponse | null>(null);
   const [compareLoading, setCompareLoading] = useState(false);
   const [compareError, setCompareError] = useState('');
-  const [detailSchool, setDetailSchool] = useState<SchoolDetailResponse | null>(null);
-  const [detailLoading, setDetailLoading] = useState(false);
-
-  const openDetail = async (schoolId: string) => {
-    setDetailLoading(true);
-    setDetailSchool(null);
-    try {
-      const res = await api.getSchoolDetail(schoolId);
-      setDetailSchool(res);
-    } finally {
-      setDetailLoading(false);
-    }
-  };
 
   const toggleCompare = (schoolId: string) => {
     setCompareIds((prev) => {
@@ -158,7 +146,7 @@ export default function SchoolsPage({ job, onBack, onRetry }: Props) {
                 {filtered.map((school, i) => {
                   const selected = compareIds.includes(school.schoolId);
                   return (
-                    <div key={school.schoolId} className={`school-card ${selected ? 'compare-selected' : ''}`} onClick={() => openDetail(school.schoolId)}>
+                    <div key={school.schoolId} className={`school-card ${selected ? 'compare-selected' : ''}`} onClick={() => onViewDetail(school.schoolId)}>
                       <div className="school-rank">#{i + 1}</div>
                       <div className="school-loc-emoji">{school.icon}</div>
                       <h3 className="school-name">{school.schoolName}</h3>
@@ -211,72 +199,6 @@ export default function SchoolsPage({ job, onBack, onRetry }: Props) {
               >
                 {compareLoading ? '불러오는 중...' : '비교 보기'}
               </button>
-            </div>
-          </div>
-        )}
-
-        {(detailLoading || detailSchool) && (
-          <div className="compare-modal-overlay" onClick={() => setDetailSchool(null)}>
-            <div className="compare-modal detail-modal" onClick={(e) => e.stopPropagation()}>
-              <div className="compare-modal-header">
-                <h3>학교 상세 정보</h3>
-                <button className="compare-close-btn" onClick={() => setDetailSchool(null)}>✕</button>
-              </div>
-              {detailLoading && <div className="loading-box"><div className="spinner" /></div>}
-              {detailSchool && (
-                <div className="detail-body">
-                  <div className="detail-hero">
-                    <span className="detail-emoji">{detailSchool.icon}</span>
-                    <div>
-                      <h4 className="detail-name">{detailSchool.schoolName}</h4>
-                      <p className="detail-sub">📍 {detailSchool.location} · 🏭 {detailSchool.industryField}</p>
-                    </div>
-                  </div>
-                  <div className="detail-grid">
-                    <div className="detail-item">
-                      <span className="detail-label">기숙사</span>
-                      <span className="detail-value">{detailSchool.hasDormitory ? '✅ 있음' : '❌ 없음'}</span>
-                    </div>
-                    {detailSchool.capacity > 0 && (
-                      <div className="detail-item">
-                        <span className="detail-label">정원</span>
-                        <span className="detail-value">{detailSchool.capacity}명</span>
-                      </div>
-                    )}
-                    {detailSchool.competitionRate && (
-                      <div className="detail-item">
-                        <span className="detail-label">경쟁률</span>
-                        <span className="detail-value">{detailSchool.competitionRate}</span>
-                      </div>
-                    )}
-                  </div>
-                  {detailSchool.mainJobs?.length > 0 && (
-                    <div className="detail-section">
-                      <span className="detail-label">주요 직업</span>
-                      <div className="compare-tags" style={{ marginTop: '0.4rem' }}>
-                        {detailSchool.mainJobs.map((j) => (
-                          <span key={j} className="tag tag-location">{j}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {detailSchool.jobFields.length > 0 && (
-                    <div className="detail-section">
-                      <span className="detail-label">직업군</span>
-                      <div className="compare-tags" style={{ marginTop: '0.4rem' }}>
-                        {detailSchool.jobFields.map((f) => (
-                          <span key={f} className="tag tag-field">{f}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {detailSchool.website && (
-                    <a className="detail-website-btn" href={detailSchool.website} target="_blank" rel="noreferrer">
-                      홈페이지 바로가기 →
-                    </a>
-                  )}
-                </div>
-              )}
             </div>
           </div>
         )}
