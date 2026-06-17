@@ -74,6 +74,53 @@ export interface SchoolDetail {
   jobFields: string[];
 }
 
+export type Achievement = 'A' | 'B' | 'C' | 'D' | 'E';
+export type Certificate =
+  | 'INFORMATION_PROCESSING'
+  | 'INFORMATION_DEVICE_OPERATION'
+  | 'ELECTRONIC_COMPUTER'
+  | 'COMPUTER_USAGE_1'
+  | 'COMPUTER_USAGE_2'
+  | 'COMPUTER_USAGE_3'
+  | 'NONE';
+
+export interface SubjectScore {
+  subjectName: string;
+  achievement: Achievement;
+  mathSubject: boolean;
+}
+
+export interface AdmissionScoreRequest {
+  grade2Semester1: SubjectScore[];
+  grade2Semester2: SubjectScore[];
+  grade3Semester1: SubjectScore[];
+  unauthorizedAbsenceDays: number;
+  unauthorizedTardyCount: number;
+  unauthorizedEarlyLeaveCount: number;
+  unauthorizedMissedClassCount: number;
+  volunteerHours: number;
+  certificate: Certificate;
+}
+
+export interface ScoreBreakdown {
+  subjectScore: number;
+  maxSubjectScore: number;
+  attendanceScore: number;
+  maxAttendanceScore: number;
+  volunteerScore: number;
+  maxVolunteerScore: number;
+  bonusScore: number;
+  maxBonusScore: number;
+}
+
+export interface AdmissionScoreResponse {
+  schoolName: string;
+  admissionType: string;
+  breakdown: ScoreBreakdown;
+  totalScore: number;
+  maxTotalScore: number;
+}
+
 export interface SchoolChatRequest {
   query: string;
 }

@@ -1,4 +1,6 @@
 import type {
+  AdmissionScoreRequest,
+  AdmissionScoreResponse,
   AptitudeAnswerRequest,
   AptitudeResultResponse,
   QuestionResponse,
@@ -75,6 +77,12 @@ export const api = {
 
   chatSchool: (body: SchoolChatRequest) =>
     request<SchoolChatResponse>('/api/schools/chat', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  calculateAdmissionScore: (schoolId: string, body: AdmissionScoreRequest) =>
+    request<AdmissionScoreResponse>(`/api/schools/${encodeURIComponent(schoolId)}/admission-score`, {
       method: 'POST',
       body: JSON.stringify(body),
     }),
